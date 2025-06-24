@@ -1,0 +1,46 @@
+
+---
+
+### 📄 `data/shakespeare.txt`
+Use any text file — ideally **tinyshakespeare** (~1MB).  
+[Download here](https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt)
+
+---
+
+### 🔧 `train_model.py`
+```python
+import tensorflow as tf
+import numpy as np
+
+text = open("data/shakespeare.txt", "r").read()
+chars = sorted(list(set(text)))
+char2idx = {c:i for i,c in enumerate(chars)}
+idx2char = {i:c for i,c in enumerate(chars)}
+
+SEQ_LENGTH = 100
+STEP = 1
+
+sentences = []
+next_chars = []
+for i in range(0, len(text) - SEQ_LENGTH, STEP):
+    sentences.append(text[i:i+SEQ_LENGTH])
+    next_chars.append(text[i+SEQ_LENGTH])
+
+X = np.zeros((len(sentences), SEQ_LENGTH, len(chars)))
+y = np.zeros((len(sentences), len(chars)))
+for i, sentence in enumerate(sentences):
+    for t, char in enumerate(sentence):
+        X[i, t, char2idx[char]] = 1
+    y[i, char2idx[next_chars[i]]] = 1
+
+model = tf.keras.models.Sequential([
+    tf.keras.layers.LSTM(128, input_shape=(SEQ_LENGTH, len(chars))),
+    tf.keras.layers.Dense(len(chars), activation='softmax')
+])
+
+model.compile(optimizer='adam', loss='categorical_crossentropy')
+model.fit(X, y, batch_size=128, epochs=5)
+
+model.save("model.h5")
+np.save("char2idx.npy", char2idx)
+np.save("idx2char.npy", idx2char)
