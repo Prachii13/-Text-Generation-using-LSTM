@@ -1,0 +1,9 @@
+text_generator_lstm/
+├── data/shakespeare.txt             # Text dataset
+├── train_model.py                   # LSTM training script
+├── generate_text.py                 # CLI-based generator
+├── app.py                           # Streamlit interface
+├── model.h5                         # Trained model
+├── requirements.txt
+├── README.md
+└── .gitignore
